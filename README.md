@@ -6,6 +6,6 @@ My LifeTwig work included functional and non-functional testing on iOS and Andro
 
 A delayed older feed response must never replace newer content on screen or in the cache. Start with [MOB-R03 and its traceability chain](docs/risk-and-traceability.md#flagship-traceability), then review the [12 manual cases](docs/manual-test-cases.md), [test strategy](docs/test-strategy.md), and [planned device matrix](docs/device-matrix.md).
 
-**Status** — QA planning complete. Device and OS results are pending.
+**Status** — The synthetic app and local API are implemented. Device and OS results are pending. See [local setup and diagnostic controls](docs/local-demo.md).
 
 All app and API code, fixtures, tests, logs, and evidence will be created specifically for this portfolio. The project uses synthetic data only and excludes client source code, production endpoints, real user data, historical credentials, private logs, and proprietary assets.

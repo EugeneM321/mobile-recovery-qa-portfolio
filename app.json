@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "Harbor Circle QA",
+    "slug": "mobile-recovery-qa-portfolio",
+    "version": "1.0.0",
+    "android": {
+      "package": "dev.qaportfolio.harborcircle",
+      "blockedPermissions": ["android.permission.ACCESS_BACKGROUND_LOCATION"]
+    },
+    "ios": {
+      "bundleIdentifier": "dev.qaportfolio.harborcircle",
+      "infoPlist": {
+        "NSAppTransportSecurity": { "NSAllowsLocalNetworking": true }
+      }
+    },
+    "plugins": [
+      ["expo-location", {
+        "locationWhenInUsePermission": "Harbor Circle uses this permission to display a fictional demo region.",
+        "locationAlwaysAndWhenInUsePermission": false,
+        "locationAlwaysPermission": false,
+        "isIosBackgroundLocationEnabled": false,
+        "isAndroidBackgroundLocationEnabled": false,
+        "isAndroidForegroundServiceEnabled": false
+      }],
+      ["expo-build-properties", { "android": { "usesCleartextTraffic": true } }]
+    ]
+  }
+}
