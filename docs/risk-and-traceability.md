@@ -4,7 +4,7 @@
 
 | Risk | Requirement | Evidence required |
 | --- | --- | --- |
-| Stale data replaces a newer feed | MOB-R03 | M11 shows v2 remains on screen and in cache when v1 arrives late. |
+| Stale data replaces a newer feed | MOB-R03 | M11 verifies the screen and the client regression verifies visible and cached snapshots after late v1. |
 | Permission denial or revocation makes the feed unusable | MOB-R02 | M03 and M04 show that the general feed continues to work without permission. |
 | Connectivity failure loses the last-good feed | MOB-R04 | M06 and M09 show that the last-good snapshot and its timestamp survive an offline launch. |
 | An error state is unclear or unrecoverable | MOB-R05 | M07, M08, M10, and M12 show usable retry and a clear transition to a healthy feed. |
@@ -14,15 +14,14 @@ Block release if a listed risk is reproduced or if the evidence required for the
 
 ## Flagship traceability
 
-**MOB-R03 → M11 → planned A04 → planned client-state regression → planned device/network evidence → planned CI/device retest**
+**MOB-R03 → M11 manual Pixel 3a run → A04 API ordering → client-state stale-response regression → CI evidence**
 
-| Layer | Intended evidence |
+| Layer | Evidence |
 | --- | --- |
-| MOB-R03 | When a newer response v2 is already applied, a delayed successful response v1 cannot roll back visible content, the cached revision, or the last-updated indicator. |
-| M11 | Hold refresh A carrying v1, background and resume, then apply refresh B carrying v2. Release A and verify no rollback. Relaunch offline to verify cached v2. |
-| Planned A04 | Reproduce deterministic out-of-order delivery and verify two successful responses, distinct request IDs, and v2 arriving before v1. |
-| Planned client-state regression | Apply v2 and then deliver v1. Verify v1 is ignored and the visible and persisted state remain v2. |
-| Planned device/network evidence | Correlate screen captures with request IDs and revisions in sanitized network records and device logs. Capture which revision the client applied or discarded. |
-| Planned CI/device retest | Link the API and client-state CI result and the separate device retest on the corrected build. Record the build and device or OS. |
+| MOB-R03 | Late v1 must not replace the visible or cached v2 snapshot or its last-updated value. |
+| M11 | The [manual Pixel 3a API 34 run](test-runs/2026-11-24-pixel3a-api34-local.md#mob-r03-evidence) showed no screen rollback after releasing held v1. |
+| A04 | The [API test](../tests/feed-api.test.mjs) proves both requests return valid HTTP 200 responses, with v2 completing before held v1. |
+| Client-state regression | The [state test](../tests/feed-state.test.mjs) drives the real feed logic with the synthetic API and in-memory storage. It proves that late v1 is discarded and both visible and cached snapshots retain v2 and its timestamp. |
+| CI evidence | [Mobile Recovery QA runs on main](https://github.com/EugeneM321/mobile-recovery-qa-portfolio/actions/workflows/qa.yml?query=branch%3Amain) show both automated checks. |
 
-A future controlled failing build may apply every successful response in arrival order. Document it as a deliberately introduced app defect in the synthetic demo and capture an equivalent retest after correcting the stale response handling.
+See the [controlled failure investigation](failure-investigation.md) for the client rollback and passing retest.
