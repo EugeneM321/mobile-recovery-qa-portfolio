@@ -1,0 +1,26 @@
+name: Mobile Recovery QA
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  recovery:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - name: Run synthetic API scenarios
+        run: npm run test:api
+      - name: Run MOB-R03 client-state regression
+        run: npm run test:state
