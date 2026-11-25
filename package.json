@@ -7,7 +7,10 @@
     "api": "node api/server.mjs",
     "start": "expo start --dev-client",
     "android": "expo run:android",
-    "ios": "expo run:ios"
+    "ios": "expo run:ios",
+    "test": "node --test",
+    "test:api": "node --test tests/feed-api.test.mjs",
+    "test:state": "node --test tests/feed-state.test.mjs"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",

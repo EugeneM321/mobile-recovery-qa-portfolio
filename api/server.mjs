@@ -113,5 +113,9 @@ const controls = createServer(async (req, res) => {
 })
 
 const feedHost = process.env.DEMO_FEED_HOST || '127.0.0.1'
-feed.listen(3000, feedHost, () => console.log(`Synthetic feed listening on ${feedHost}:3000`))
-controls.listen(3001, '127.0.0.1', () => console.log('Test-only controls listening on 127.0.0.1:3001'))
+feed.listen(Number(process.env.DEMO_FEED_PORT ?? 3000), feedHost, () => {
+  console.log(`Synthetic feed listening on ${feedHost}:${feed.address().port}`)
+})
+controls.listen(Number(process.env.DEMO_CONTROL_PORT ?? 3001), '127.0.0.1', () => {
+  console.log(`Test-only controls listening on 127.0.0.1:${controls.address().port}`)
+})
