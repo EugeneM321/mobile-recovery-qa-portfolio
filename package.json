@@ -10,7 +10,7 @@
     "ios": "expo run:ios",
     "test": "node --test",
     "test:api": "node --test tests/feed-api.test.mjs",
-    "test:state": "node --test tests/feed-state.test.mjs"
+    "test:state": "node --test tests/feed-state.test.mjs tests/feed-recovery.test.mjs"
   },
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",
