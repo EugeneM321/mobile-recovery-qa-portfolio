@@ -2,18 +2,18 @@
 
 [![Mobile Recovery QA](https://github.com/EugeneM321/mobile-recovery-qa-portfolio/actions/workflows/qa.yml/badge.svg?branch=main)](https://github.com/EugeneM321/mobile-recovery-qa-portfolio/actions/workflows/qa.yml)
 
-An independent mobile QA case study using synthetic data, inspired by the types of mobile risks I tested professionally on LifeTwig. The case study asks whether a community feed stays usable after a permission change, interrupted network request, or app relaunch.
+An independent QA case study for a synthetic mobile feed, informed by the risks I tested professionally on LifeTwig. A delayed response must never replace newer content on screen or in the cache. If a refresh fails, the app must retain usable data and offer a retry.
 
-**Flagship risk:** If v2 arrives before delayed v1, the app must retain v2 on screen and in its cache. The recorded Android emulator run verified the visible revision. The Node.js client-state regression verifies both states.
+**How it is verified:** The local HTTP harness holds and releases responses in a known order. Node.js host tests use a controlled clock and injected storage adapters for timeout and Retry, offline cache restoration, invalid payloads and request IDs, and storage failures. The historical Android emulator run provides separate evidence of visible behavior.
 
 ## Quick Review
 
 | Evidence | Result |
 | --- | --- |
 | [Android manual run](docs/test-runs/2026-11-24-pixel3a-api34-local.md) | 12/12 Pass on local Pixel 3a, Android 14 / API 34. Ready for release on this target. |
-| [API automation](tests/feed-api.test.mjs) | A01–A04 pass, covering baseline, 503 recovery, interruption, and out-of-order HTTP 200 responses. |
-| [Client-state regression](tests/feed-state.test.mjs) and [recovery cases](tests/feed-recovery.test.mjs) | 9 host tests passed locally, including the stale-response regression. |
-| [Mobile Recovery QA CI](https://github.com/EugeneM321/mobile-recovery-qa-portfolio/actions/workflows/qa.yml?query=branch%3Amain) | Passing on main. Node.js host checks run on push and pull request. |
+| [API automation](tests/feed-api.test.mjs) | 4 passed in main CI. Covers baseline, 503 recovery, interruption, and out-of-order HTTP 200 responses. |
+| [Client-state regression](tests/feed-state.test.mjs) and [recovery cases](tests/feed-recovery.test.mjs) | 9 host tests passed in main CI. Late v1 leaves the visible and cached v2 snapshot intact. |
+| [Mobile Recovery QA CI](https://github.com/EugeneM321/mobile-recovery-qa-portfolio/actions/runs/46077696582) | Passing Ubuntu run with separate API and state JUnit reports. See the [workflow](.github/workflows/qa.yml). |
 | [MOB-R03 traceability](docs/risk-and-traceability.md#flagship-traceability) | Requirement → M11 on Pixel 3a → A04 ordering → client-state regression → CI. |
 | [Controlled failure investigation](docs/failure-investigation.md) | Removing the revision guard rolled visible and cached state back to v1. The retest with the guard passed. |
 | [Device matrix](docs/device-matrix.md) | iOS and physical-device execution remain Not Run. The [blocked workspace run](docs/test-runs/2026-11-24-android-v1.md) records the earlier virtualization limitation. |
