@@ -2,7 +2,9 @@ name: Mobile Recovery QA
 
 on:
   push:
+    branches: [main]
   pull_request:
+    branches: [main]
 
 permissions:
   contents: read
@@ -12,6 +14,11 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
+      - name: Create reports directory
+        run: |
+          mkdir -p "$RUNNER_TEMP/qa-reports"
+          echo "QA_REPORT_DIR=$RUNNER_TEMP/qa-reports" >> "$GITHUB_ENV"
+
       - uses: actions/checkout@v7
         with:
           persist-credentials: false
@@ -20,7 +27,38 @@ jobs:
           node-version: '24'
           cache: npm
       - run: npm ci
+        id: install
       - name: Run synthetic API scenarios
-        run: npm run test:api
-      - name: Run MOB-R03 client-state regression
-        run: npm run test:state
+        run: node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=junit --test-reporter-destination="$QA_REPORT_DIR/mobile-api.xml" tests/feed-api.test.mjs
+      - name: Run client-state and recovery regressions
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: node --test --test-reporter=spec --test-reporter-destination=stdout --test-reporter=junit --test-reporter-destination="$QA_REPORT_DIR/mobile-state.xml" tests/feed-state.test.mjs tests/feed-recovery.test.mjs
+
+      - name: Summarize test results
+        if: ${{ !cancelled() }}
+        run: |
+          python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import glob
+          import os
+          from pathlib import Path
+          from xml.etree import ElementTree
+
+          print("### QA test results\n")
+          reports = sorted(glob.glob(os.path.join(os.environ["QA_REPORT_DIR"], "*.xml")))
+          if not reports:
+              print("No test reports were produced. See the job log for setup errors.")
+          for report in reports:
+              cases = ElementTree.parse(report).getroot().findall(".//testcase")
+              failed = sum(case.find("failure") is not None or case.find("error") is not None for case in cases)
+              skipped = sum(case.find("skipped") is not None for case in cases)
+              print(f"- {Path(report).name} — {len(cases)} cases, {failed} failed, {skipped} skipped")
+          PY
+
+      - name: Upload machine-readable test reports
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: qa-test-reports
+          path: ${{ env.QA_REPORT_DIR }}/*.xml
+          if-no-files-found: ignore
+          retention-days: 7
